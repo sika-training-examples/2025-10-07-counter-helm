@@ -10,7 +10,6 @@ spec:
     - metadata:
         name: data
       spec:
-        storageClassName: do-block-storage
         accessModes:
           - ReadWriteOnce
         resources:
