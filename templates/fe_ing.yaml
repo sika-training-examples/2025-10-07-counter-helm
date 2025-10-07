@@ -5,7 +5,7 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
 spec:
-  ingressClassName: nginx
+  ingressClassName: {{ .Values.ingressClassName }}
   tls:
     - hosts:
         - {{ .Values.host }}
