@@ -1,0 +1,9 @@
+# Required
+host:
+
+# Optional
+EXTRA_TEXT:
+BACKGROUND_COLOR: lightgray
+
+backendReplicas: 2
+frontendReplicas: 2

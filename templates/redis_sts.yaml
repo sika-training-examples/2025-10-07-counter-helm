@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{.Release.Name}}-redis
+spec:
+  selector:
+    matchLabels:
+      app: {{.Release.Name}}-redis
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        storageClassName: do-block-storage
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+  template:
+    metadata:
+      labels:
+        app: {{.Release.Name}}-redis
+    spec:
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: data
+      initContainers:
+        - name: chown
+          image: busybox
+          command:
+            - sh
+            - -c
+            - chmod 777 -R /data/
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      containers:
+        - name: redis
+          image: redis:8
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              cpu: 50m
+              memory: 50Mi
+            limits:
+              cpu: 100m
+              memory: 100Mi
+          volumeMounts:
+            - name: data
+              mountPath: /data

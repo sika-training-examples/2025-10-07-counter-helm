@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Release.Name}}-fe
+spec:
+  revisionHistoryLimit: 0
+  replicas: {{ .Values.frontendReplicas }}
+  selector:
+    matchLabels:
+      app: {{.Release.Name}}-fe
+  template:
+    metadata:
+      labels:
+        app: {{.Release.Name}}-fe
+    spec:
+      initContainers:
+        - name: wait-for-be
+          image: sikalabs/slu:v0.91.0
+          args:
+            - /bin/sh
+            - -c
+            - slu wait-for tcp -a {{.Release.Name}}-be:80
+      containers:
+        - name: fe
+          image: ghcr.io/ondrejsika/counter-frontend
+          env:
+            - name: API_ORIGIN
+              value: http://{{.Release.Name}}-be
+            - name: BACKGROUND_COLOR
+              value: {{ .Values.BACKGROUND_COLOR | quote }}
+          ports:
+            - containerPort: 3000
+          startupProbe:
+            httpGet:
+              path: /api/livez
+              port: 3000
+          resources:
+            requests:
+              cpu: 50m
+              memory: 100Mi
+            limits:
+              cpu: 200m
+              memory: 200Mi
